@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # firewall-drop.sh  —  Active Response: Block source IP via iptables
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 #
 # Triggered by: Wazuh rule 105760 (SSH brute force)
 # Location:     /var/ossec/active-response/bin/firewall-drop.sh  (linux-endpoint)

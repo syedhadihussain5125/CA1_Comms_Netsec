@@ -1,6 +1,6 @@
 # =============================================================================
 # sim-powershell-suspicious.ps1  —  BENIGN PowerShell Simulation
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 #
 # PURPOSE: Execute a safe PowerShell command using the -EncodedCommand flag
 #          to trigger Sysmon EID 1 with -enc in the command line.

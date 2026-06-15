@@ -1,6 +1,6 @@
 ##
 ## docker-compose.yml  —  Larkspur AI Security Stack
-## Student: Batool Fatima  |  Module: B9CY110  |  CA1
+## Student: Syed Hadi Hussain  |  Module: B9CY110  |  CA1
 ##
 ## Services:
 ##   1. ollama          — LLM inference engine (llama3.2:1b model)

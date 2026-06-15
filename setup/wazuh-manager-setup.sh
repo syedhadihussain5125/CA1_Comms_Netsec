@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # wazuh-manager-setup.sh  —  Wazuh Manager + Docker AI Stack Setup
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 # Target OS: Ubuntu 22.04 LTS  |  IP: 192.168.56.10  |  RAM: 8 GB
 #
 # This script:
@@ -20,7 +20,7 @@ exec > >(tee -a "$LOGFILE") 2>&1
 log() { echo "[$(date '+%Y-%m-%dT%H:%M:%S')] $*"; }
 
 log "=== Larkspur Retail Group — Wazuh Manager Setup ==="
-log "Student: Batool Fatima  |  CA1  |  B9CY110"
+log "Student: Syed Hadi Hussain  |  CA1  |  B9CY110"
 
 # ---- 1. Prerequisites -------------------------------------------------------
 log "--- Step 1: System update and hostname ---"

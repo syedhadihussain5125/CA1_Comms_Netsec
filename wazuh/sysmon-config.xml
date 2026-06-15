@@ -1,6 +1,6 @@
 <!--
   sysmon-config.xml  —  Windows Sysmon Configuration
-  Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+  Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
   Based on the SwiftOnSecurity community template (balanced noise/coverage)
   Deploy:   Sysmon64.exe -accepteula -i sysmon-config.xml
   Update:   Sysmon64.exe -c sysmon-config.xml

@@ -1,6 +1,6 @@
 # =============================================================================
 # remove-task.ps1  —  Active Response: Delete a suspicious Windows scheduled task
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 #
 # Triggered by: Wazuh rule 100600 (suspicious scheduled task — EID 4698)
 # Location:     C:\Program Files (x86)\ossec-agent\active-response\bin\remove-task.ps1

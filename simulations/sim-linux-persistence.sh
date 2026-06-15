@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # sim-linux-persistence.sh  —  BENIGN Linux Persistence Simulation
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 #
 # PURPOSE: Simulate an attacker creating a backdoor user and immediately
 #          granting it sudo privileges — triggering:

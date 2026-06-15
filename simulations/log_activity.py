@@ -1,6 +1,6 @@
 """
 log_activity.py  —  BENIGN Persistence Payload
-Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 
 PURPOSE:
   This is the benign "malware" payload referenced in the Windows

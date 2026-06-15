@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   local_rules.xml  —  Larkspur Retail Group  —  Custom Wazuh Detection Rules
-  Student: Batool Fatima  |  Module: B9CY110  |  Assessment: CA1
+  Student: Syed Hadi Hussain  |  Module: B9CY110  |  Assessment: CA1
   Place this file at: /var/ossec/etc/rules/local_rules.xml  (Wazuh manager)
 -->
 

@@ -1,5 +1,5 @@
 ## auditd.rules  —  Linux Endpoint Telemetry (Advanced Source)
-## Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+## Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 ## Deploy at: /etc/audit/rules.d/larkspur.rules  on linux-endpoint
 ## Apply with:  augenrules --load  &&  systemctl restart auditd
 

@@ -99,20 +99,20 @@ document = <<~HTML
       body {
         color: #111827;
         font-family: Arial, Helvetica, sans-serif;
-        font-size: 9px;
+        font-size: 11px;
         line-height: 1.28;
       }
-      h1 { font-size: 19px; margin: 0 0 8px; page-break-after: avoid; }
-      h2 { font-size: 14px; margin: 12px 0 5px; border-bottom: 1px solid #cbd5e1; page-break-after: avoid; }
-      h3 { font-size: 11px; margin: 8px 0 4px; page-break-after: avoid; }
-      h4 { font-size: 10px; margin: 6px 0 3px; page-break-after: avoid; }
+      h1 { font-size: 23px; margin: 0 0 8px; page-break-after: avoid; }
+      h2 { font-size: 16px; margin: 12px 0 5px; border-bottom: 1px solid #cbd5e1; page-break-after: avoid; }
+      h3 { font-size: 13px; margin: 8px 0 4px; page-break-after: avoid; }
+      h4 { font-size: 12px; margin: 6px 0 3px; page-break-after: avoid; }
       p { margin: 3px 0 5px; }
       ul { margin: 3px 0 6px 16px; padding: 0; }
       li { margin: 2px 0; }
       table { border-collapse: collapse; width: 100%; table-layout: fixed; margin: 5px 0 8px; page-break-inside: avoid; }
       th, td {
         border: 1px solid #cbd5e1;
-        font-size: 7.6px;
+        font-size: 9px;
         padding: 2px 3px;
         vertical-align: top;
         overflow-wrap: anywhere;
@@ -122,7 +122,7 @@ document = <<~HTML
       code { background: #f1f5f9; padding: 0 2px; font-family: Consolas, monospace; }
       figure { margin: 7px 0; text-align: center; page-break-inside: avoid; }
       img { max-width: 100%; max-height: 115mm; }
-      figcaption { color: #475569; font-size: 8px; margin-top: 2px; }
+      figcaption { color: #475569; font-size: 9px; margin-top: 2px; }
     </style>
   </head>
   <body>

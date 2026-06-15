@@ -1,7 +1,7 @@
 # Larkspur Retail Group — Endpoint Security Lab (CA1)
 **Module:** B9CY110 Communication and Network Security  
 **Programme:** MSc Cybersecurity — Dublin Business School  
-**Student:** Batool Fatima  
+**Student:** Syed Hadi Hussain  
 **Assessment:** CA1 — Endpoint Security Incident Response and Automated Remediation
 
 ---

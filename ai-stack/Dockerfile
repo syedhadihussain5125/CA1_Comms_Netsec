@@ -1,5 +1,5 @@
 ## Dockerfile  —  Larkspur Alert Dashboard (Streamlit + Ollama client)
-## Student: Batool Fatima  |  Module: B9CY110  |  CA1
+## Student: Syed Hadi Hussain  |  Module: B9CY110  |  CA1
 ##
 ## Minimal Python image; runs the Streamlit dashboard as a non-root user.
 ## The container has NO execution capability — it only reads alerts.json
@@ -7,7 +7,7 @@
 
 FROM python:3.11-slim
 
-LABEL maintainer="Batool Fatima"
+LABEL maintainer="Syed Hadi Hussain"
 LABEL description="Larkspur AI Security Alert Dashboard"
 
 # Create a non-root user for least-privilege operation

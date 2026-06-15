@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # account-lock.sh  —  Active Response: Lock a Linux user account
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 #
 # Triggered by: Wazuh rule 100011 (sudo escalation after new account creation)
 # Location:     /var/ossec/active-response/bin/account-lock.sh  (linux-endpoint)

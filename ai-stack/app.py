@@ -1,6 +1,6 @@
 """
 app.py  —  Larkspur AI Security Alert Dashboard
-Student: Batool Fatima  |  Module: B9CY110  |  CA1
+Student: Syed Hadi Hussain  |  Module: B9CY110  |  CA1
 
 Streamlit web application that:
   1. Reads Wazuh alerts.json (last N high-severity alerts)
@@ -42,7 +42,7 @@ with st.sidebar:
     st.markdown("### LRG SOC")
     st.title("Larkspur Retail Group")
     st.subheader("AI Security Dashboard")
-    st.caption("CA1 — B9CY110 — Batool Fatima")
+    st.caption("CA1 — B9CY110 — Syed Hadi Hussain")
     st.divider()
 
     min_level_filter = st.slider("Minimum Alert Level", 1, 15, MIN_LEVEL)

@@ -1,7 +1,7 @@
 @echo off
 ::
 :: remove-task.cmd  —  Active Response CMD wrapper for PowerShell task removal
-:: Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+:: Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 ::
 :: Triggered by: Wazuh rule 100600 (suspicious scheduled task created)
 :: Location:     C:\Program Files (x86)\ossec-agent\active-response\bin\remove-task.cmd

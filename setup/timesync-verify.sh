@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # timesync-verify.sh  —  Time Synchronisation Evidence Script
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 #
 # Purpose: Verify all nodes are within acceptable time drift (<1s)
 # Run from: wazuh-manager (SSH to each endpoint and check)
@@ -18,7 +18,7 @@ log() { echo "$*" | tee -a "$LOGFILE"; }
 
 log "========================================================================"
 log "  Larkspur Retail Group — Time Synchronisation Verification Report"
-log "  Student: Batool Fatima  |  CA1  |  B9CY110"
+log "  Student: Syed Hadi Hussain  |  CA1  |  B9CY110"
 log "  Generated: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 log "========================================================================"
 log ""

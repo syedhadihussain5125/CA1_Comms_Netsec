@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # sim-brute-force.sh  —  BENIGN SSH Brute Force Simulation
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 #
 # PURPOSE: Generate SSH authentication failure events on linux-endpoint
 #          to trigger Wazuh rule 5760 → custom rule 105760 (SSH brute force)

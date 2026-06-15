@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # linux-endpoint-setup.sh  —  Linux Endpoint Configuration
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 # Target OS: Ubuntu 22.04 LTS  |  IP: 192.168.56.30  |  RAM: 4 GB
 #
 # Intentionally weak configurations (documented, controlled):

@@ -1,6 +1,6 @@
 # =============================================================================
 # sim-windows-task.ps1  —  BENIGN Windows Scheduled Task Simulation
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 #
 # PURPOSE: Create a scheduled task with a suspicious name to trigger:
 #            - Windows Security EID 4698 (task created)

@@ -1,6 +1,6 @@
 # =============================================================================
 # windows-endpoint-setup.ps1  —  Windows Endpoint Configuration
-# Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+# Larkspur Retail Group  |  Student: Syed Hadi Hussain  |  CA1
 # Target OS: Windows 10 Enterprise  |  IP: 192.168.56.20
 #
 # Intentionally weak configurations (documented, controlled):
