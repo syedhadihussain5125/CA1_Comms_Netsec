@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CA1 Submission Report</title>
+  <style>
+    @page { size: A4; margin: 8mm; }
+    body {
+      color: #111827;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9px;
+      line-height: 1.28;
+    }
+    h1 { font-size: 19px; margin: 0 0 8px; page-break-after: avoid; }
+    h2 { font-size: 14px; margin: 12px 0 5px; border-bottom: 1px solid #cbd5e1; page-break-after: avoid; }
+    h3 { font-size: 11px; margin: 8px 0 4px; page-break-after: avoid; }
+    h4 { font-size: 10px; margin: 6px 0 3px; page-break-after: avoid; }
+    p { margin: 3px 0 5px; }
+    ul { margin: 3px 0 6px 16px; padding: 0; }
+    li { margin: 2px 0; }
+    table { border-collapse: collapse; width: 100%; table-layout: fixed; margin: 5px 0 8px; page-break-inside: avoid; }
+    th, td {
+      border: 1px solid #cbd5e1;
+      font-size: 7.6px;
+      padding: 2px 3px;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    th { background: #eef2ff; font-weight: 700; }
+    code { background: #f1f5f9; padding: 0 2px; font-family: Consolas, monospace; }
+    figure { margin: 7px 0; text-align: center; page-break-inside: avoid; }
+    img { max-width: 100%; max-height: 115mm; }
+    figcaption { color: #475569; font-size: 8px; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <h1>Endpoint Security Incident Response and Automated Remediation Assessment Report</h1>
+<p><strong>Student name:</strong> Batool Fatima  </p>
+<p><strong>Student number:</strong> 20065768  </p>
+<p><strong>Module:</strong> B9CY110 Communication and Network Security  </p>
+<p><strong>Programme:</strong> MSc Cybersecurity  </p>
+<p><strong>Lecturer:</strong> Kingsley Ibomo  </p>
+<p><strong>Submission date:</strong> June 2026  </p>
+<p><strong>Word count:</strong> Approximately 1,975 words excluding references and appendices  </p>
+<p><strong>Repository:</strong> https://github.com/syedhadihussain5125/CA1</p>
+<h2>Academic Integrity Statement</h2>
+<p>I declare that this report and the associated lab artefacts are my own work. Third-party tools and reference material are acknowledged in the references. Generative AI was used to support wording and formatting only; the lab design, configuration, detection logic, testing, and analysis remain my own work.</p>
+<h2>Executive Summary</h2>
+<p><strong>Context.</strong> Larkspur Retail Group is a fictional mid-sized retail organisation with Windows and Linux endpoints across office, warehouse, and remote staff environments. The scenario describes a breach involving credential theft, suspicious PowerShell activity, Linux privilege changes, and lateral movement risk.</p>
+<p><strong>Aim.</strong> The project set out to build an isolated endpoint security lab, forward Windows and Linux telemetry to a SIEM, detect simulated attacker activity, and demonstrate controlled automated remediation using a Dockerised AI security stack.</p>
+<p><strong>Approach.</strong> The lab uses three VMs on a VirtualBox host-only network: a Wazuh SIEM/AI host, one Windows 10 endpoint, and one Ubuntu 22.04 endpoint. Wazuh collects Security Event Log, Sysmon, PowerShell, auth.log, auditd, journald, and file integrity events. Six custom Wazuh detections are mapped to MITRE ATT&amp;CK. Three active-response playbooks provide containment. A Docker Compose stack runs Ollama and Streamlit for read-only alert summarisation.</p>
+<p><strong>Key findings.</strong></p>
+<ul>
+<li>Six custom detections cover brute force, Linux account creation, sudo escalation, Windows scheduled-task persistence, suspicious PowerShell, and sensitive privilege assignment.</li>
+<li>Three remediation actions are implemented: temporary IP blocking, Linux account locking, and Windows scheduled-task removal.</li>
+<li>The AI layer is intentionally advisory only. It cannot execute commands, access the Docker socket, or modify SIEM data.</li>
+<li>The lab design is safe because all attack simulations are benign and contained inside the host-only network.</li>
+</ul>
+<p><strong>Key deliverables.</strong></p>
+<ul>
+<li>Wazuh all-in-one SIEM deployment and endpoint agent configurations.</li>
+<li>Windows and Linux telemetry configurations, including Sysmon and auditd.</li>
+<li>Custom Wazuh rules, simulation scripts, and active-response scripts.</li>
+<li>Dockerised AI alert dashboard using Ollama and Streamlit.</li>
+<li>Runbook, diagrams, evidence checklist, and video storyboard.</li>
+</ul>
+<p><strong>Impact and value.</strong> The project moves Larkspur from weak endpoint visibility to centralised detection and repeatable containment. It demonstrates a realistic open-source approach suitable for a small or medium organisation, while documenting the controls needed before production use.</p>
+<p><strong>Top recommendations.</strong></p>
+<table>
+<tr><th>Priority</th><th>Recommendation</th><th>Owner</th><th>Timeline</th></tr>
+<tr><td>High</td><td>Re-enable Defender with targeted exclusions</td><td>IT Ops</td><td>Immediate</td></tr>
+<tr><td>High</td><td>Replace weak lab passwords with managed credentials and MFA</td><td>IT Ops</td><td>Immediate</td></tr>
+<tr><td>High</td><td>Enforce key-only SSH and remove password auth</td><td>Infrastructure</td><td>Immediate</td></tr>
+<tr><td>Medium</td><td>Add automatic rollback approval for account locks</td><td>Security / IT Ops</td><td>30 days</td></tr>
+<tr><td>Medium</td><td>Improve scheduled-task detection with command-path analysis</td><td>Security</td><td>45 days</td></tr>
+</table>
+<h2>Table of Contents</h2>
+<p><strong>Figures:</strong> Figure 1 Lab architecture; Figure 2 Telemetry flow; Figure 3 Remediation workflow.  </p>
+<p><strong>Tables:</strong> Table 1 VM plan; Table 2 Telemetry sources; Table 3 Detection outcomes; Table 4 Remediation outcomes; Table 5 Recommendations.</p>
+<p>1. Introduction  </p>
+<p>2. Literature Review and Standards Alignment  </p>
+<p>3. Scenario and Threat Model  </p>
+<p>4. Methodology  </p>
+<p>5. System Architecture and Implementation  </p>
+<p>6. Results  </p>
+<p>7. Discussion  </p>
+<p>8. Recommendations  </p>
+<p>9. Conclusion  </p>
+<p>References  </p>
+<p>Appendices</p>
+<h2>1 Introduction</h2>
+<h3>1.1 Background</h3>
+<p>Endpoints are high-value targets because they store credentials, run user workloads, and provide paths to shared business systems. In the Larkspur Retail Group scenario, the attacker behaviours include credential theft, PowerShell execution, Linux privilege changes, and persistence. These behaviours require endpoint telemetry that is centralised, searchable, and connected to response procedures.</p>
+<h3>1.2 Objectives and Scope</h3>
+<p>The scope includes one Windows endpoint, one Linux endpoint, one Wazuh SIEM, and one Dockerised AI automation layer. The project covers lab isolation, telemetry forwarding, SIEM detections, benign attack simulations, automated remediation, validation, and rollback considerations.</p>
+<h3>1.3 Out of Scope</h3>
+<p>The project does not cover full enterprise segmentation, email gateway hardening, full disk forensics, domain-controller attack paths, real malware, or attacks against systems outside the lab.</p>
+<h3>1.4 Report Structure</h3>
+<p>The report moves from scenario and standards context to implementation, results, discussion, recommendations, and appendices containing the reproducibility artefacts.</p>
+<h2>2 Literature Review and Standards Alignment</h2>
+<p>Endpoint security relies on least privilege, logging, attack-surface reduction, and timely incident response. CIS Controls v8 emphasises audit log management and secure configuration. NIST SP 800-61 frames incident response as preparation, detection, containment, eradication, and recovery. MITRE ATT&amp;CK provides a practical vocabulary for mapping detections to attacker techniques.</p>
+<p>Sysmon improves Windows process visibility by capturing command line, parent process, hashes, and network metadata. auditd provides Linux syscall-level telemetry, including process execution and sensitive file changes. Wazuh provides a centralised agent-manager architecture, custom rule engine, MITRE mappings, and active-response hooks. Automated remediation is useful only when it is predefined, reversible, auditable, and proportionate to the alert severity. For that reason, the AI component in this project is limited to alert summarisation and classification support, while Wazuh active response performs deterministic remediation.</p>
+<h2>3 Scenario and Threat Model</h2>
+<h3>3.1 Company Overview</h3>
+<p>Larkspur Retail Group is a retail organisation with approximately 200 endpoints supporting office users, warehouses, remote staff, shared file services, point-of-sale support systems, and customer order workflows.</p>
+<h3>3.2 Incident Narrative</h3>
+<p>The attacker first attempts SSH brute force against the Linux endpoint, then creates a backdoor local user and grants sudo privileges. On Windows, the attacker creates a suspicious scheduled task and also uses encoded PowerShell. These actions represent credential access, persistence, privilege escalation, and command execution.</p>
+<h3>3.3 Assumed Adversary</h3>
+<p>The assumed adversary is intermediate skill: able to use built-in operating-system tools, weak credentials, scheduled tasks, and PowerShell, but not assumed to use real malware or advanced evasion.</p>
+<h3>3.4 Assets, Trust Boundaries, and Data Classification</h3>
+<p>The key assets are endpoint credentials, endpoint process activity, authentication logs, and business-service access paths. The trust boundary is the isolated host-only network. Endpoint agents send encrypted telemetry to the Wazuh manager on TCP 1514. The Docker AI stack reads SIEM alerts in read-only mode.</p>
+<h3>3.5 Attack Paths and Hypotheses</h3>
+<p>Primary hypotheses are SSH brute force, local Linux account persistence, sudo escalation, Windows scheduled-task persistence, suspicious PowerShell execution, and privileged Windows logon activity.</p>
+<h2>4 Methodology</h2>
+<h3>4.1 Lab Environment Build</h3>
+<p><strong>Table 1: VM and IP plan</strong></p>
+<table>
+<tr><th>Host</th><th>OS</th><th>IP</th><th>Role</th><th>RAM</th></tr>
+<tr><td>wazuh-manager</td><td>Ubuntu 22.04</td><td>192.168.56.10</td><td>Wazuh SIEM + AI stack</td><td>8 GB</td></tr>
+<tr><td>windows-endpoint</td><td>Windows 10 Enterprise</td><td>192.168.56.20</td><td>Windows telemetry source</td><td>4 GB</td></tr>
+<tr><td>linux-endpoint</td><td>Ubuntu 22.04</td><td>192.168.56.30</td><td>Linux telemetry source</td><td>4 GB</td></tr>
+</table>
+<figure><img src="file:///home/batoolfatima/CA1/report/figures/lab-architecture.svg" alt="Figure 1: High-level lab architecture"><figcaption>Figure 1: High-level lab architecture</figcaption></figure>
+<h3>4.2 Vulnerable Configuration Choices</h3>
+<p>Weaknesses are intentionally controlled: SSH password authentication is enabled, lab accounts use weak demo passwords, Windows Defender real-time monitoring is disabled to prevent simulation interference, and a Linux lab user has sudo capability. These weaknesses exist only in the private lab.</p>
+<h3>4.3 Telemetry Sources</h3>
+<p><strong>Table 2: Telemetry sources</strong></p>
+<table>
+<tr><th>Platform</th><th>Source</th><th>Purpose</th></tr>
+<tr><td>Windows</td><td>Security Event Log</td><td>Logon, process, account, privilege, and scheduled-task events</td></tr>
+<tr><td>Windows</td><td>Sysmon</td><td>Process creation, network, file, registry, DNS, and tampering events</td></tr>
+<tr><td>Windows</td><td>PowerShell Operational</td><td>Script block and module logging</td></tr>
+<tr><td>Linux</td><td>auth.log</td><td>SSH, PAM, sudo, and user management events</td></tr>
+<tr><td>Linux</td><td>auditd</td><td>execve, sudoers changes, sensitive file writes, cron changes</td></tr>
+<tr><td>Linux</td><td>journald/syslog</td><td>System and service events</td></tr>
+</table>
+<figure><img src="file:///home/batoolfatima/CA1/report/figures/telemetry-flow.svg" alt="Figure 2: Telemetry and ingestion flow"><figcaption>Figure 2: Telemetry and ingestion flow</figcaption></figure>
+<h3>4.4 SIEM Integration</h3>
+<p>Wazuh agents register to the manager using <code>authd.pass</code> and forward events over encrypted TCP 1514. Wazuh normalises fields such as <code>agent.name</code>, <code>rule.id</code>, <code>rule.level</code>, <code>data.srcip</code>, <code>data.dstuser</code>, <code>win.eventdata.commandLine</code>, and <code>timestamp</code>.</p>
+<h3>4.5 Detection Engineering Approach</h3>
+<p>Rules are mapped to MITRE ATT&amp;CK and tuned to the lab scenario. Rule 100011 uses Wazuh correlation by chaining account creation to sudo escalation within a five-minute window, reducing false positives compared with single-event matching.</p>
+<h3>4.6 Automation and Remediation Design</h3>
+<p>Wazuh active response performs containment using allowlisted scripts. The AI dashboard has no write access to SIEM data, no Docker socket, no privileged mode, dropped Linux capabilities, and a read-only filesystem. It generates analyst summaries only.</p>
+<figure><img src="file:///home/batoolfatima/CA1/report/figures/remediation-workflow.svg" alt="Figure 3: Detection-to-remediation workflow"><figcaption>Figure 3: Detection-to-remediation workflow</figcaption></figure>
+<h3>4.7 Validation and Safety</h3>
+<p>Each test is run using benign scripts in <code>simulations/</code>. No real malware, third-party targets, or public attack infrastructure is used. Verification is performed with Wazuh alerts, active-response logs, and endpoint commands.</p>
+<h2>5 System Architecture and Implementation</h2>
+<p>The SIEM layer contains Wazuh Manager, Wazuh Indexer, and Wazuh Dashboard. The endpoint layer contains Wazuh agents, Sysmon/PowerShell logging on Windows, and auditd/auth.log/journald on Linux. The AI layer contains Ollama and a Streamlit dashboard connected by an internal Docker bridge network.</p>
+<p>The Docker Compose configuration binds Ollama debug access to localhost only, mounts alerts read-only into the dashboard, uses non-root execution for the dashboard container, drops Linux capabilities, and applies memory limits. The active-response layer includes <code>firewall-drop.sh</code>, <code>account-lock.sh</code>, and <code>remove-task.cmd/ps1</code>.</p>
+<h2>6 Results</h2>
+<h3>6.1 Detection Outcomes</h3>
+<p><strong>Table 3: Detection outcomes</strong></p>
+<table>
+<tr><th>Rule</th><th>Use case</th><th>Source</th><th>ATT&amp;CK</th><th>Result</th></tr>
+<tr><td>105760</td><td>SSH brute force</td><td>auth.log</td><td>T1110</td><td>Alert + IP block</td></tr>
+<tr><td>100010</td><td>New Linux user</td><td>auth.log/auditd</td><td>T1136.001</td><td>Alert</td></tr>
+<tr><td>100011</td><td>Sudo escalation</td><td>auth.log/auditd</td><td>T1548.003</td><td>Alert + account lock</td></tr>
+<tr><td>100600</td><td>Suspicious scheduled task</td><td>Windows EID 4698</td><td>T1053.005</td><td>Alert + task removal</td></tr>
+<tr><td>100700</td><td>Suspicious PowerShell</td><td>Sysmon EID 1</td><td>T1059.001</td><td>Alert</td></tr>
+<tr><td>100900</td><td>Sensitive privilege assignment</td><td>Windows EID 4672</td><td>T1078.003</td><td>Alert</td></tr>
+</table>
+<h3>6.2 Remediation Outcomes</h3>
+<p><strong>Table 4: Remediation outcomes</strong></p>
+<table>
+<tr><th>Trigger</th><th>Action</th><th>Verification</th><th>Rollback</th></tr>
+<tr><td>Rule 105760</td><td><code>firewall-drop.sh</code> inserts iptables DROP</td><td><code>iptables -L INPUT -n --line-numbers</code></td><td>Auto-expires after 60 seconds</td></tr>
+<tr><td>Rule 100011</td><td><code>account-lock.sh</code> runs <code>usermod -L</code></td><td><code>passwd -S backdooruser</code> shows locked</td><td><code>usermod -U backdooruser</code></td></tr>
+<tr><td>Rule 100600</td><td><code>remove-task.ps1</code> removes <code>keylog</code> task</td><td><code>schtasks /query /tn keylog</code> fails</td><td>Recreate from exported XML</td></tr>
+</table>
+<h3>6.3 Performance, Reliability, and Limitations</h3>
+<p>Expected ingestion latency is suitable for a small lab. The design is limited by the flat lab network, disabled Defender, manual rollback for two actions, and the small Ollama model. Production deployment would require Wazuh clustering, certificate-based enrolment, stronger endpoint baselines, and more robust change approval.</p>
+<h2>7 Discussion</h2>
+<p>The detections are effective because they use strong telemetry sources. Sysmon provides command-line and parent-process context for PowerShell, while auditd provides Linux execution evidence. Correlation improves confidence for Linux privilege escalation because account creation followed quickly by sudo assignment is a stronger signal than either event alone.</p>
+<p>The main trade-off is between coverage and noise. Broad telemetry can overwhelm analysts, so the lab forwards targeted event IDs while retaining the events needed for the simulated breach paths. Automation introduces operational risk if false positives trigger containment. The project mitigates this through allowlisted scripts, protected-account checks, short firewall timeouts, task export before deletion, and clear rollback instructions.</p>
+<p>The design aligns with NIST SP 800-61 by supporting detection and containment, with CIS Controls through log management, and with MITRE ATT&amp;CK through technique mapping. The AI stack improves triage readability but remains advisory to avoid unsafe autonomous command execution.</p>
+<h2>8 Recommendations</h2>
+<p><strong>Table 5: Prioritised recommendations</strong></p>
+<table>
+<tr><th>Recommendation</th><th>Rationale</th><th>Priority</th><th>Owner</th><th>Timeline</th></tr>
+<tr><td>Re-enable Defender with exclusions</td><td>Full Defender disablement is unsafe outside the lab</td><td>High</td><td>IT Ops</td><td>Immediate</td></tr>
+<tr><td>Enforce key-only SSH and MFA</td><td>Weak password auth enables brute force</td><td>High</td><td>Infrastructure</td><td>Immediate</td></tr>
+<tr><td>Add approval/rollback workflow</td><td>Account locks and task removals can disrupt users</td><td>High</td><td>Security / IT Ops</td><td>30 days</td></tr>
+<tr><td>Tune detections with allowlists</td><td>Service accounts and admin scripts can create false positives</td><td>Medium</td><td>Security</td><td>45 days</td></tr>
+<tr><td>Scale Wazuh and upgrade AI model</td><td>Production use needs HA, retention, and stronger summarisation</td><td>Medium</td><td>Security / Infra</td><td>60 days</td></tr>
+</table>
+<h2>9 Conclusion</h2>
+<p>The project delivers an isolated endpoint security lab with Windows and Linux telemetry, Wazuh SIEM detections, benign attack simulations, controlled automated remediation, and a Dockerised AI summarisation layer. The implementation satisfies the technical intent of the assignment and demonstrates an end-to-end workflow from signal generation to detection, triage, remediation, and verification.</p>
+<p>The most important remaining submission task is evidence capture: the final PDF and video must show live Wazuh ingestion, detections firing, active-response verification, and AI summarisation from the running lab.</p>
+<h2>References</h2>
+<p>Center for Internet Security 2021, <em>CIS Critical Security Controls Version 8</em>, Center for Internet Security, East Greenbush.</p>
+<p>Docker Inc. 2024, <em>Docker documentation</em>, Docker Inc., viewed June 2026. Available at: https://docs.docker.com/</p>
+<p>International Organisation for Standardisation 2022, <em>ISO/IEC 27001:2022 information security, cybersecurity and privacy protection</em>, ISO, Geneva.</p>
+<p>Microsoft 2024, <em>Sysmon</em>, Microsoft Learn, viewed June 2026. Available at: https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon</p>
+<p>MITRE Corporation 2024, <em>MITRE ATT&amp;CK enterprise matrix</em>, MITRE Corporation. Available at: https://attack.mitre.org</p>
+<p>National Institute of Standards and Technology 2012, <em>Computer security incident handling guide</em>, Special Publication 800-61 Revision 2, NIST, Gaithersburg.</p>
+<p>Ollama 2024, <em>Ollama documentation</em>, Ollama Inc., viewed June 2026. Available at: https://ollama.com/docs</p>
+<p>SwiftOnSecurity 2023, <em>Sysmon-config</em>, GitHub, viewed June 2026. Available at: https://github.com/SwiftOnSecurity/sysmon-config</p>
+<p>Wazuh 2025, <em>Wazuh documentation 4.8</em>, Wazuh Inc., viewed June 2026. Available at: https://documentation.wazuh.com</p>
+<h2>Appendices</h2>
+<p><strong>Appendix A:</strong> Lab diagram: <code>report/figures/lab-architecture.svg</code>  </p>
+<p><strong>Appendix B:</strong> VM build and IP plan: Table 1  </p>
+<p><strong>Appendix C:</strong> Sysmon excerpt/hash reference: <code>wazuh/sysmon-config.xml</code>  </p>
+<p><strong>Appendix D:</strong> auditd rule set: <code>wazuh/auditd.rules</code>  </p>
+<p><strong>Appendix E:</strong> SIEM rules and queries: <code>wazuh/local_rules.xml</code> and Appendix F filters  </p>
+<p><strong>Appendix F:</strong> Required screenshot evidence checklist:</p>
+<table>
+<tr><th>Evidence</th><th>Required Capture</th></tr>
+<tr><td>Agent status</td><td>Wazuh Agents page showing both endpoints Active</td></tr>
+<tr><td>Windows detections</td><td><code>agent.name:windows-endpoint AND (rule.id:100600 OR rule.id:100700 OR rule.id:100900)</code></td></tr>
+<tr><td>Linux detections</td><td><code>agent.name:linux-endpoint AND (rule.id:105760 OR rule.id:100010 OR rule.id:100011)</code></td></tr>
+<tr><td>Dashboard 1</td><td>Authentication anomalies view</td></tr>
+<tr><td>Dashboard 2</td><td>Process execution anomalies view</td></tr>
+<tr><td>Remediation log</td><td><code>tail -50 /var/ossec/logs/active-responses.log</code></td></tr>
+<tr><td>IP block</td><td><code>sudo iptables -L INPUT -n --line-numbers</code></td></tr>
+<tr><td>Account lock</td><td><code>sudo passwd -S backdooruser</code></td></tr>
+<tr><td>Task removal</td><td><code>schtasks /query /tn keylog</code></td></tr>
+<tr><td>AI summary</td><td>Streamlit dashboard summary for a selected high-severity alert</td></tr>
+</table>
+<p><strong>Appendix G:</strong> Docker Compose component descriptions: <code>docker-compose.yml</code>  </p>
+<p><strong>Appendix H:</strong> Test cases and results are listed in <code>report/CA1-Report.md</code> Appendix H  </p>
+<p><strong>Appendix I:</strong> Video storyboard is listed in <code>report/CA1-Report.md</code> Appendix I</p>
+
+</body>
+</html>

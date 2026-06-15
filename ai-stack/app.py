@@ -39,8 +39,7 @@ st.set_page_config(
 
 # ---- Sidebar ----------------------------------------------------------------
 with st.sidebar:
-    st.image("https://raw.githubusercontent.com/wazuh/wazuh/master/images/wazuh-symbol.svg",
-             width=60, use_column_width=False)
+    st.markdown("### LRG SOC")
     st.title("Larkspur Retail Group")
     st.subheader("AI Security Dashboard")
     st.caption("CA1 — B9CY110 — Batool Fatima")

@@ -6,7 +6,7 @@
 #
 # This script:
 #   1. Sets hostname and NTP time sync
-#   2. Installs Wazuh Manager 4.x via official repo
+#   2. Installs Wazuh all-in-one components via official installer
 #   3. Deploys local_rules.xml and ossec.conf
 #   4. Deploys active response scripts
 #   5. Installs Docker + Docker Compose
@@ -39,19 +39,17 @@ timedatectl status
 ntpq -p
 log "Time sync configured. All VMs should use UTC to ensure consistent timestamps."
 
-# ---- 3. Install Wazuh Manager ----------------------------------------------
-log "--- Step 3: Installing Wazuh Manager 4.x ---"
-curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | \
-    gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import
-chmod 644 /usr/share/keyrings/wazuh.gpg
+# ---- 3. Install Wazuh all-in-one SIEM --------------------------------------
+log "--- Step 3: Installing Wazuh all-in-one SIEM ---"
+WAZUH_INSTALLER="/tmp/wazuh-install.sh"
 
-echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" \
-    > /etc/apt/sources.list.d/wazuh.list
-
-apt-get update -qq
-WAZUH_MANAGER_VERSION=4.8.0 apt-get install -y wazuh-manager
-
-log "Wazuh Manager installed."
+if systemctl list-unit-files | grep -q '^wazuh-dashboard.service'; then
+    log "Wazuh dashboard already installed; skipping all-in-one installer."
+else
+    curl -sSL https://packages.wazuh.com/4.8/wazuh-install.sh -o "$WAZUH_INSTALLER"
+    bash "$WAZUH_INSTALLER" -a
+    log "Wazuh manager, indexer, and dashboard installed."
+fi
 
 # ---- 4. Deploy Wazuh configuration -----------------------------------------
 log "--- Step 4: Deploying Wazuh configuration ---"
@@ -68,6 +66,11 @@ if [ -f "$REPO_DIR/wazuh/local_rules.xml" ]; then
     chmod 640 /var/ossec/etc/rules/local_rules.xml
     log "local_rules.xml deployed."
 fi
+
+echo "AgentRegPass@Lab1" > /var/ossec/etc/authd.pass
+chown root:wazuh /var/ossec/etc/authd.pass
+chmod 640 /var/ossec/etc/authd.pass
+log "Agent registration password deployed to /var/ossec/etc/authd.pass."
 
 # ---- 5. Deploy active response scripts -------------------------------------
 log "--- Step 5: Deploying active response scripts ---"
@@ -121,19 +124,17 @@ docker exec larkspur-ollama ollama pull llama3.2:1b || true
 
 # ---- 8. Open firewall ports ------------------------------------------------
 log "--- Step 8: Firewall (UFW) ---"
-ufw allow 1514/tcp comment "Wazuh agent communication"
-ufw allow 1515/tcp comment "Wazuh agent enrollment"
-ufw allow 55000/tcp comment "Wazuh API"
-ufw allow 9200/tcp comment "Wazuh Indexer"
-ufw allow 443/tcp comment "Wazuh Dashboard"
-ufw allow 8501/tcp comment "Streamlit AI Dashboard"
-ufw allow 11434/tcp comment "Ollama API (local only)"
+ufw allow from 192.168.56.0/24 to any port 1514 proto tcp comment "Wazuh agent communication"
+ufw allow from 192.168.56.0/24 to any port 1515 proto tcp comment "Wazuh agent enrollment"
+ufw allow from 192.168.56.0/24 to any port 443 proto tcp comment "Wazuh Dashboard"
+ufw allow from 192.168.56.0/24 to any port 8501 proto tcp comment "Streamlit AI Dashboard"
 ufw --force enable
 
 # ---- Summary ----------------------------------------------------------------
 log ""
 log "=== Setup Complete ==="
-log "Wazuh Manager:  https://192.168.56.10 (admin / SecureWazuh@Lab1)"
+log "Wazuh Dashboard: https://192.168.56.10"
+log "Wazuh credentials are printed by the installer and stored in ./wazuh-install-files.tar."
 log "AI Dashboard:   http://192.168.56.10:8501"
 log "Log file:       $LOGFILE"
 log ""

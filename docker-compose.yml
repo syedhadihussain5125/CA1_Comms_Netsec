@@ -40,16 +40,21 @@ services:
     volumes:
       - ollama-data:/root/.ollama
     ports:
-      - "11434:11434"          # exposed on manager only; not internet-facing
+      - "127.0.0.1:11434:11434" # host-local debug access only; dashboard uses Docker network
     environment:
       - OLLAMA_HOST=0.0.0.0
       - OLLAMA_KEEP_ALIVE=24h  # keep model loaded in memory
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 4g
     deploy:
       resources:
         limits:
           memory: 4G           # keep within 8 GB host RAM budget
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:11434/api/tags"]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -74,6 +79,10 @@ services:
       sh -c "ollama pull llama3.2:1b && echo 'Model ready.'"
     environment:
       - OLLAMA_HOST=http://ollama:11434
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
   # ============================================================
   # Alert Dashboard — Streamlit web UI
@@ -103,6 +112,16 @@ services:
       - MAX_ALERTS_DISPLAY=50
       - STREAMLIT_SERVER_HEADLESS=true
       - STREAMLIT_SERVER_PORT=8501
+      - HOME=/tmp
+      - XDG_CONFIG_HOME=/tmp/.config
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 512m
     deploy:
       resources:
         limits:

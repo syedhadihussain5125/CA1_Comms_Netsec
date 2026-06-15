@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="560" viewBox="0 0 1100 560" role="img" aria-labelledby="title desc">
+  <title id="title">Figure 2: Endpoint telemetry and SIEM ingestion flow</title>
+  <desc id="desc">Windows and Linux telemetry sources flow through Wazuh agents into the manager, custom rules, indexer, dashboard, and AI dashboard.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <style>
+      .source { fill: #fefce8; stroke: #a16207; stroke-width: 2; rx: 8; }
+      .agent { fill: #f0f9ff; stroke: #0369a1; stroke-width: 2; rx: 8; }
+      .core { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 8; }
+      .view { fill: #ecfdf5; stroke: #047857; stroke-width: 2; rx: 8; }
+      .title { font: 700 22px Arial, sans-serif; fill: #111827; }
+      .label { font: 700 15px Arial, sans-serif; fill: #111827; }
+      .text { font: 12.5px Arial, sans-serif; fill: #374151; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <text x="45" y="50" class="title">Telemetry Collection, Normalisation, and Triage Flow</text>
+
+  <rect x="60" y="105" width="210" height="125" class="source"/>
+  <text x="82" y="135" class="label">Windows Sources</text>
+  <text x="82" y="162" class="text">Security: 4624, 4625, 4672</text>
+  <text x="82" y="184" class="text">Sysmon: EID 1, 3, 11, 22</text>
+  <text x="82" y="206" class="text">PowerShell: 4103, 4104</text>
+
+  <rect x="60" y="320" width="210" height="125" class="source"/>
+  <text x="82" y="350" class="label">Linux Sources</text>
+  <text x="82" y="377" class="text">auth.log: SSH, sudo, PAM</text>
+  <text x="82" y="399" class="text">auditd: execve and file writes</text>
+  <text x="82" y="421" class="text">journald and syslog</text>
+
+  <rect x="345" y="130" width="190" height="85" class="agent"/>
+  <text x="382" y="163" class="label">Wazuh Agent</text>
+  <text x="382" y="188" class="text">windows-endpoint</text>
+
+  <rect x="345" y="340" width="190" height="85" class="agent"/>
+  <text x="382" y="373" class="label">Wazuh Agent</text>
+  <text x="382" y="398" class="text">linux-endpoint</text>
+
+  <rect x="610" y="225" width="190" height="110" class="core"/>
+  <text x="645" y="258" class="label">Wazuh Manager</text>
+  <text x="645" y="283" class="text">Decoders + custom rules</text>
+  <text x="645" y="305" class="text">Active response engine</text>
+
+  <rect x="870" y="110" width="170" height="85" class="view"/>
+  <text x="904" y="143" class="label">Indexer</text>
+  <text x="904" y="168" class="text">Parsed alerts/events</text>
+
+  <rect x="870" y="240" width="170" height="85" class="view"/>
+  <text x="898" y="273" class="label">Dashboard</text>
+  <text x="898" y="298" class="text">Search + dashboards</text>
+
+  <rect x="870" y="370" width="170" height="85" class="view"/>
+  <text x="894" y="403" class="label">AI Dashboard</text>
+  <text x="894" y="428" class="text">Read-only summaries</text>
+
+  <path d="M270,168 L345,168" class="arrow"/>
+  <path d="M270,383 L345,383" class="arrow"/>
+  <path d="M535,173 C585,173 585,250 610,262" class="arrow"/>
+  <path d="M535,383 C585,383 585,312 610,298" class="arrow"/>
+  <path d="M800,268 C830,235 840,178 870,153" class="arrow"/>
+  <path d="M800,280 L870,280" class="arrow"/>
+  <path d="M800,300 C830,335 840,390 870,412" class="arrow"/>
+</svg>

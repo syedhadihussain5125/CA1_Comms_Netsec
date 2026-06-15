@@ -111,8 +111,24 @@ systemctl status wazuh-agent --no-pager
 
 log "Agent status: $(grep 'status' /var/ossec/var/run/ossec-agentd.state 2>/dev/null || echo 'check manually')"
 
-# ---- 6. Firewall (UFW) -------------------------------------------------------
-log "--- Step 6: UFW Firewall ---"
+# ---- 6. Deploy Linux active response scripts -------------------------------
+log "--- Step 6: Deploying Linux active response scripts ---"
+AR_BIN="/var/ossec/active-response/bin"
+
+if [ -f "$REPO_DIR/wazuh/active-response/firewall-drop.sh" ]; then
+    cp "$REPO_DIR/wazuh/active-response/firewall-drop.sh" "$AR_BIN/firewall-drop.sh"
+fi
+
+if [ -f "$REPO_DIR/wazuh/active-response/account-lock.sh" ]; then
+    cp "$REPO_DIR/wazuh/active-response/account-lock.sh" "$AR_BIN/account-lock.sh"
+fi
+
+chown root:wazuh "$AR_BIN/firewall-drop.sh" "$AR_BIN/account-lock.sh"
+chmod 750 "$AR_BIN/firewall-drop.sh" "$AR_BIN/account-lock.sh"
+log "Linux active response scripts deployed."
+
+# ---- 7. Firewall (UFW) -------------------------------------------------------
+log "--- Step 7: UFW Firewall ---"
 ufw allow 22/tcp comment "SSH"
 ufw allow from 192.168.56.10 to any port 1514 proto tcp comment "Wazuh manager"
 ufw --force enable
@@ -132,3 +148,6 @@ log "TELEMETRY SOURCES:"
 log "  - /var/log/auth.log          (SSH, sudo, PAM events)"
 log "  - /var/log/audit/audit.log   (auditd: execve, user mgmt, sudoers)"
 log "  - journald                   (process and system events)"
+log "ACTIVE RESPONSE:"
+log "  - firewall-drop.sh           (temporary IP block for rule 105760)"
+log "  - account-lock.sh            (locks backdoor account for rule 100011)"

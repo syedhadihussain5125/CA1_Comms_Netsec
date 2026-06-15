@@ -2,16 +2,16 @@
 
 ---
 
-**Student Name:** Batool Fatima
-**Student Number:** [YOUR_STUDENT_NUMBER]
+**Student Name:** Syed Hadi Hussain
+**Student Number:** 20065768
 **Module:** B9CY110: Communication and Network Security
 **Programme:** MSc Cybersecurity
 **Lecturer:** Kingsley Ibomo
 **Assessment:** Continuous Assessment 1 (CA1)
 **Submission Date:** June 2026
-**Word Count:** [EXCLUDING REFERENCES AND APPENDICES]
+**Word Count:** Approximately 5,470 words excluding references and appendices
 
-**GitHub Repository:** [YOUR_GITHUB_REPO_URL]
+**GitHub Repository:** https://github.com/syedhadihussain5125/CA1
 
 ---
 
@@ -67,6 +67,20 @@ The project moves Larkspur Retail Group from zero endpoint visibility to active 
 ---
 
 ## Table of Contents
+
+### List of Figures
+
+- **Figure 1:** High-level lab architecture and trust boundaries
+- **Figure 2:** Endpoint telemetry and SIEM ingestion flow
+- **Figure 3:** Detection-to-remediation workflow
+
+### List of Tables
+
+- **Table 1:** Lab VM specifications
+- **Table 2:** Telemetry sources configured per platform
+- **Table 3:** Detection outcomes for all six rules
+- **Table 4:** Remediation outcomes
+- **Table 5:** Prioritised recommendations
 
 1. Introduction
 2. Literature Review and Standards Alignment
@@ -167,7 +181,7 @@ The adversary is an intermediate-skill attacker capable of credential attacks, b
 
 ### 3.4 Assets and Trust Boundaries
 
-Primary assets are the endpoint devices that store credentials and provide access to business-critical services. The trust boundary separates the endpoint network from the Wazuh manager. Agent traffic flows only from endpoints to the manager over encrypted TCP 1514. The manager should not be reachable by endpoint users directly. The Docker AI stack runs on the same manager VM and reads alerts in read-only mode. See Appendix A for the full architecture diagram.
+Primary assets are the endpoint devices that store credentials and provide access to business-critical services. The trust boundary separates the endpoint network from the Wazuh manager. Agent traffic flows only from endpoints to the manager over encrypted TCP 1514. The manager should not be reachable by endpoint users directly. The Docker AI stack runs on the same manager VM and reads alerts in read-only mode. Figure 1 and Appendix A show the full architecture diagram.
 
 ### 3.5 Attack Paths and Hypotheses
 
@@ -237,9 +251,11 @@ Rules 100010 and 100011 are chained using Wazuh's `if_matched_sid` and `timefram
 
 ### 4.7 Automation and Remediation Design
 
-The Docker stack runs on the wazuh-manager VM and consists of two services: an Ollama container serving the llama3.2:1b model for inference, and a Streamlit container providing the web dashboard. The AI component reads `/var/ossec/logs/alerts/alerts.json` (mounted read-only) and calls the Ollama API to generate structured analyst summaries. The AI has no write access to any system and cannot execute commands — it is strictly an enrichment and summarisation layer.
+The Docker stack runs on the wazuh-manager VM and consists of two services: an Ollama container serving the llama3.2:1b model for inference, and a Streamlit container providing the web dashboard. The AI component reads `/var/ossec/logs/alerts/alerts.json` (mounted read-only) and calls the Ollama API to generate structured analyst summaries. The AI has no write access to SIEM alert data, no Docker socket, no privileged container mode, and no remediation scripts mounted into the container. It is strictly an enrichment and summarisation layer.
 
 All remediation actions are handled exclusively by Wazuh active-response scripts. Each script reads the alert JSON from stdin (Wazuh 4.x format), validates inputs with safety guards (no root, no system accounts, no protected system tasks), performs the action, and logs the outcome to `/var/ossec/logs/active-responses.log`. This audit trail satisfies the requirement for auditable, pre-approved remediation actions.
+
+![Figure 3: Detection-to-remediation workflow](figures/remediation-workflow.svg)
 
 ### 4.8 Validation and Evaluation
 
@@ -255,9 +271,13 @@ All simulations used standard Linux and Windows OS commands. No real malware was
 
 ### 5.1 High-Level Architecture
 
-The lab consists of three components: the endpoint layer (Windows 10 and Ubuntu 22.04 endpoints), the SIEM layer (Wazuh Manager), and the AI automation layer (Docker Compose stack). See Appendix A for the full architecture diagram.
+The lab consists of three components: the endpoint layer (Windows 10 and Ubuntu 22.04 endpoints), the SIEM layer (Wazuh Manager, Wazuh Indexer, and Wazuh Dashboard), and the AI automation layer (Docker Compose stack). See Figure 1 and Appendix A for the full architecture diagram.
+
+![Figure 1: High-level lab architecture and trust boundaries](figures/lab-architecture.svg)
 
 Endpoints send telemetry to the Wazuh manager over encrypted TCP 1514. The manager evaluates events against built-in and custom rules. When a rule fires, it generates an alert entry in `alerts.json`. The active-response engine can trigger predefined scripts on the agent or manager based on rule IDs. The AI dashboard reads `alerts.json` and calls Ollama for enrichment.
+
+![Figure 2: Endpoint telemetry and SIEM ingestion flow](figures/telemetry-flow.svg)
 
 ### 5.2 Endpoint Configurations
 
@@ -302,9 +322,10 @@ Services are connected via an internal bridge network (`ai-internal`). The Ollam
 **Security Controls**
 
 - Dashboard container runs as non-root user (`appuser`)
-- AI component has no shell access and cannot execute commands
+- AI component has no Docker socket, no privileged mode, no remediation scripts, and no write access to SIEM alert data
 - Ollama volume is isolated from the host filesystem
-- Memory limits are set: Ollama 4 GB, dashboard 512 MB
+- Containers use `no-new-privileges`, dropped Linux capabilities, and memory limits: Ollama 4 GB, dashboard 512 MB
+- The dashboard filesystem is read-only, with only `/tmp` mounted as tmpfs for Streamlit runtime files
 - The `ai-internal` network can be set to `internal: true` after model pull to fully isolate containers
 
 ---
@@ -523,7 +544,20 @@ Six custom rules in `/var/ossec/etc/rules/local_rules.xml`:
 
 ### Appendix F — Screenshots of Dashboards and Alerts
 
-*(Screenshots to be added from actual lab deployment — Wazuh dashboard showing rules 105760, 100010, 100011, 100600, 100700, 100900 firing; Streamlit AI dashboard showing analyst summary output; iptables showing firewall-drop rule; passwd -S showing locked account.)*
+The following screenshots must be captured from the running lab and inserted into the final PDF. They cannot be fabricated from configuration files, because the assignment requires on-screen evidence of the systems working end to end.
+
+| Evidence ID | Screenshot or Export | Required Filter / Command | Requirement Covered |
+|---|---|---|---|
+| F1 | Wazuh Agents page | Both `windows-endpoint` and `linux-endpoint` Active | Part B ingestion status |
+| F2 | Wazuh Discover event list | `agent.name:windows-endpoint AND (rule.id:100600 OR rule.id:100700 OR rule.id:100900)` | Windows telemetry and detections |
+| F3 | Wazuh Discover event list | `agent.name:linux-endpoint AND (rule.id:105760 OR rule.id:100010 OR rule.id:100011)` | Linux telemetry and detections |
+| F4 | Authentication anomalies dashboard | `rule.id:(105760 OR 100010 OR 100011)` | Required dashboard visualisation 1 |
+| F5 | Process execution anomalies dashboard | `data.win.eventdata.eventID:1 OR win.system.eventID:4688` | Required dashboard visualisation 2 |
+| F6 | Active response log | `tail -50 /var/ossec/logs/active-responses.log` | Remediation audit trail |
+| F7 | Linux firewall verification | `sudo iptables -L INPUT -n --line-numbers` | IP block verification |
+| F8 | Account lock verification | `sudo passwd -S backdooruser` | Account remediation verification |
+| F9 | Windows task deletion verification | `schtasks /query /tn keylog` | Scheduled task remediation verification |
+| F10 | Streamlit AI dashboard | Selected high-severity alert with generated summary | Dockerised AI stack evidence |
 
 ### Appendix G — Docker Compose File and Component Descriptions
 

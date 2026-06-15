@@ -29,7 +29,7 @@ sudo bash setup/wazuh-manager-setup.sh
 ```
 
 After ~5 minutes:
-- Wazuh dashboard: https://192.168.56.10 (admin / SecureWazuh@Lab1)
+- Wazuh dashboard: https://192.168.56.10 (credentials printed by the Wazuh installer and stored in `wazuh-install-files.tar`)
 - AI dashboard: http://192.168.56.10:8501
 
 ### Step 2: Set up the Linux Endpoint
@@ -189,7 +189,10 @@ CA1/
 │   └── timesync-verify.sh       ← NTP verification script
 │
 └── report/
-    └── CA1-Report.md            ← Full academic report
+    ├── CA1-Report.md            ← Full academic report
+    ├── CA1-Submission-Report.md ← Concise PDF-ready report
+    ├── Assignment-Compliance-Review.md ← Requirement-by-requirement audit
+    └── figures/                 ← Architecture and workflow diagrams
 ```
 
 ---
