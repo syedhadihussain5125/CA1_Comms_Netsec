@@ -1,0 +1,140 @@
+<!--
+  sysmon-config.xml  —  Windows Sysmon Configuration
+  Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+  Based on the SwiftOnSecurity community template (balanced noise/coverage)
+  Deploy:   Sysmon64.exe -accepteula -i sysmon-config.xml
+  Update:   Sysmon64.exe -c sysmon-config.xml
+  Reference: https://github.com/SwiftOnSecurity/sysmon-config
+
+  Events captured:
+    EID 1   Process creation (with command line + hashes)
+    EID 3   Network connection (outbound TCP/UDP)
+    EID 7   Image/DLL load
+    EID 11  File creation
+    EID 12  Registry object add/delete
+    EID 13  Registry value set
+    EID 22  DNS query
+    EID 25  Process tampering
+-->
+
+<Sysmon schemaversion="4.90">
+
+  <!-- Capture SHA256 hashes of all process images -->
+  <HashAlgorithms>md5,sha256,IMPHASH</HashAlgorithms>
+  <CheckRevocation>False</CheckRevocation>
+
+  <EventFiltering>
+
+    <!-- ============================================================
+      EID 1  —  PROCESS CREATION
+      Include ALL processes; exclude known-noisy system noise.
+      This is the primary source for rule 100700 (suspicious PowerShell).
+    ============================================================ -->
+    <RuleGroup name="" groupRelation="or">
+      <ProcessCreate onmatch="exclude">
+        <!-- Exclude high-volume Windows Update / telemetry processes -->
+        <Image condition="is">C:\Windows\system32\SearchIndexer.exe</Image>
+        <Image condition="is">C:\Windows\system32\wermgr.exe</Image>
+        <Image condition="is">C:\Windows\system32\backgroundTaskHost.exe</Image>
+        <Image condition="is">C:\Windows\system32\conhost.exe</Image>
+        <CommandLine condition="contains">-Embedding</CommandLine>
+      </ProcessCreate>
+    </RuleGroup>
+
+    <!-- ============================================================
+      EID 3  —  NETWORK CONNECTION
+      Exclude very high-volume trusted connections; capture suspicious ports.
+    ============================================================ -->
+    <RuleGroup name="" groupRelation="or">
+      <NetworkConnect onmatch="exclude">
+        <Image condition="is">C:\Windows\system32\svchost.exe</Image>
+        <DestinationPort condition="is">443</DestinationPort>
+        <DestinationPort condition="is">80</DestinationPort>
+        <DestinationPort condition="is">53</DestinationPort>
+      </NetworkConnect>
+    </RuleGroup>
+
+    <!-- ============================================================
+      EID 7  —  IMAGE/DLL LOADED
+      Capture DLL loads for PowerShell and common attack tools.
+      Exclude high-frequency Windows OS DLLs.
+    ============================================================ -->
+    <RuleGroup name="" groupRelation="or">
+      <ImageLoad onmatch="include">
+        <Image condition="contains">powershell</Image>
+        <Image condition="contains">wscript</Image>
+        <Image condition="contains">cscript</Image>
+        <Image condition="contains">mshta</Image>
+        <Image condition="contains">rundll32</Image>
+        <Image condition="contains">regsvr32</Image>
+        <ImageLoaded condition="contains">clrjit.dll</ImageLoaded>
+        <Signed condition="is">false</Signed>
+      </ImageLoad>
+    </RuleGroup>
+
+    <!-- ============================================================
+      EID 11  —  FILE CREATION
+      Watch Temp, Downloads, Scripts directories for new executables.
+    ============================================================ -->
+    <RuleGroup name="" groupRelation="or">
+      <FileCreate onmatch="include">
+        <TargetFilename condition="contains">\Temp\</TargetFilename>
+        <TargetFilename condition="contains">\Downloads\</TargetFilename>
+        <TargetFilename condition="end with">.ps1</TargetFilename>
+        <TargetFilename condition="end with">.bat</TargetFilename>
+        <TargetFilename condition="end with">.vbs</TargetFilename>
+        <TargetFilename condition="end with">.exe</TargetFilename>
+        <TargetFilename condition="contains">\System32\Tasks\</TargetFilename>
+      </FileCreate>
+    </RuleGroup>
+
+    <!-- ============================================================
+      EID 12/13  —  REGISTRY EVENTS
+      Capture Run keys, Services, and persistence-related registry paths.
+    ============================================================ -->
+    <RuleGroup name="" groupRelation="or">
+      <RegistryEvent onmatch="include">
+        <TargetObject condition="contains">SOFTWARE\Microsoft\Windows\CurrentVersion\Run</TargetObject>
+        <TargetObject condition="contains">SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce</TargetObject>
+        <TargetObject condition="contains">SYSTEM\CurrentControlSet\Services</TargetObject>
+        <TargetObject condition="contains">SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon</TargetObject>
+        <TargetObject condition="contains">Environment\UserInitMprLogonScript</TargetObject>
+      </RegistryEvent>
+    </RuleGroup>
+
+    <!-- ============================================================
+      EID 22  —  DNS QUERY
+      Capture all DNS queries (high value for C2 detection).
+      Exclude known-good Windows Update / Defender domains.
+    ============================================================ -->
+    <RuleGroup name="" groupRelation="or">
+      <DnsQuery onmatch="exclude">
+        <QueryName condition="end with">microsoft.com</QueryName>
+        <QueryName condition="end with">windows.com</QueryName>
+        <QueryName condition="end with">windowsupdate.com</QueryName>
+      </DnsQuery>
+    </RuleGroup>
+
+    <!-- ============================================================
+      EID 25  —  PROCESS TAMPERING
+      Capture all process tampering events (high severity).
+    ============================================================ -->
+    <RuleGroup name="" groupRelation="or">
+      <ProcessTampering onmatch="include">
+        <Type condition="is">Image is replaced</Type>
+      </ProcessTampering>
+    </RuleGroup>
+
+    <!-- ============================================================
+      ALL OTHER EVENT IDs — DISABLED (reduce noise in lab)
+    ============================================================ -->
+    <RuleGroup name="" groupRelation="or">
+      <ProcessAccess    onmatch="include"><Image condition="is">-</Image></ProcessAccess>
+      <FileCreateTime   onmatch="include"><Image condition="is">-</Image></FileCreateTime>
+      <RawAccessRead    onmatch="include"><Image condition="is">-</Image></RawAccessRead>
+      <CreateRemoteThread onmatch="include"><SourceImage condition="is">-</SourceImage></CreateRemoteThread>
+    </RuleGroup>
+
+  </EventFiltering>
+
+</Sysmon>

@@ -1,0 +1,132 @@
+##
+## docker-compose.yml  —  Larkspur AI Security Stack
+## Student: Batool Fatima  |  Module: B9CY110  |  CA1
+##
+## Services:
+##   1. ollama          — LLM inference engine (llama3.2:1b model)
+##   2. alert-dashboard — Streamlit web app: reads Wazuh alerts.json,
+##                        summarises each alert via Ollama API (read-only AI)
+##
+## Usage:
+##   docker compose up -d            # start stack
+##   docker compose logs -f          # follow logs
+##   docker compose down             # stop stack
+##
+## Access: http://192.168.56.10:8501
+##
+## IMPORTANT: The AI component is strictly read-only.
+##   - It reads /var/ossec/logs/alerts/alerts.json (mounted read-only)
+##   - It produces text summaries ONLY — it cannot trigger any commands
+##   - All actual remediation is performed by Wazuh active-response scripts
+##   - This satisfies the NIST SP 800-61 requirement for pre-approved,
+##     human-supervised automated containment actions.
+##
+
+version: "3.9"
+
+services:
+
+  # ============================================================
+  # Ollama — local LLM inference (no internet required after pull)
+  # Model: llama3.2:1b  (fast on 8 GB RAM, adequate summaries)
+  # The model is pulled once and persisted in the ollama-data volume.
+  # ============================================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: larkspur-ollama
+    restart: unless-stopped
+    networks:
+      - ai-internal
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "11434:11434"          # exposed on manager only; not internet-facing
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_KEEP_ALIVE=24h  # keep model loaded in memory
+    deploy:
+      resources:
+        limits:
+          memory: 4G           # keep within 8 GB host RAM budget
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================
+  # Model Initialiser — pulls llama3.2:1b on first start
+  # Runs once and exits; Ollama caches the model in ollama-data.
+  # ============================================================
+  model-init:
+    image: ollama/ollama:latest
+    container_name: larkspur-model-init
+    restart: "no"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - ai-internal
+    volumes:
+      - ollama-data:/root/.ollama
+    entrypoint: >
+      sh -c "ollama pull llama3.2:1b && echo 'Model ready.'"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+
+  # ============================================================
+  # Alert Dashboard — Streamlit web UI
+  # Reads Wazuh alerts.json (READ-ONLY mount) and shows AI summaries.
+  # ============================================================
+  alert-dashboard:
+    build:
+      context: ./ai-stack
+      dockerfile: Dockerfile
+    container_name: larkspur-dashboard
+    restart: unless-stopped
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - ai-internal
+    ports:
+      - "8501:8501"            # Streamlit default port
+    volumes:
+      # Mount Wazuh alerts directory READ-ONLY — AI never writes to SIEM
+      - /var/ossec/logs/alerts:/var/ossec/logs/alerts:ro
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2:1b
+      - ALERTS_JSON=/var/ossec/logs/alerts/alerts.json
+      - MIN_ALERT_LEVEL=10
+      - MAX_ALERTS_DISPLAY=50
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_PORT=8501
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+# ============================================================
+# NETWORKS
+# ai-internal is isolated — only the two containers communicate.
+# No internet access from containers (except during model pull).
+# ============================================================
+networks:
+  ai-internal:
+    driver: bridge
+    internal: false    # set to true after model pull to fully isolate
+
+# ============================================================
+# VOLUMES
+# ============================================================
+volumes:
+  ollama-data:
+    driver: local

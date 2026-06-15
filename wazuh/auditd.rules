@@ -1,0 +1,103 @@
+## auditd.rules  —  Linux Endpoint Telemetry (Advanced Source)
+## Larkspur Retail Group  |  Student: Batool Fatima  |  CA1
+## Deploy at: /etc/audit/rules.d/larkspur.rules  on linux-endpoint
+## Apply with:  augenrules --load  &&  systemctl restart auditd
+
+## ============================================================
+## REMOVE ALL EXISTING RULES ON LOAD
+## ============================================================
+-D
+
+## ============================================================
+## BUFFER SIZE — prevent event loss under load
+## ============================================================
+-b 8192
+
+## ============================================================
+## FAILURE MODE
+## 0 = silent, 1 = printk, 2 = panic
+## Use 1 for lab (silent failures would miss events)
+## ============================================================
+-f 1
+
+## ============================================================
+## PROCESS EXECUTION (execve syscall)
+## Captures all command execution — feeds Wazuh process data
+## ATT&CK: T1059 — Command and Scripting Interpreter
+## ============================================================
+-a always,exit -F arch=b64 -S execve -k exec_commands
+-a always,exit -F arch=b32 -S execve -k exec_commands
+
+## ============================================================
+## USER ACCOUNT MANAGEMENT
+## Captures useradd, usermod, userdel, groupadd
+## ATT&CK: T1136.001 — Create Account: Local Account
+## Feeds Wazuh rules 100010, 100011
+## ============================================================
+-w /usr/sbin/useradd  -p x -k user_management
+-w /usr/sbin/usermod  -p x -k user_management
+-w /usr/sbin/userdel  -p x -k user_management
+-w /usr/sbin/groupadd -p x -k user_management
+-w /usr/sbin/groupmod -p x -k user_management
+-w /usr/bin/passwd    -p x -k user_management
+
+## ============================================================
+## SUDOERS FILE INTEGRITY
+## Any write to sudoers is suspicious
+## ATT&CK: T1548.003 — Sudo and Sudo Caching
+## ============================================================
+-w /etc/sudoers        -p wa -k sudoers_change
+-w /etc/sudoers.d/     -p wa -k sudoers_change
+
+## ============================================================
+## SENSITIVE FILE INTEGRITY
+## ATT&CK: T1003.008 — OS Credential Dumping: /etc/passwd
+## ============================================================
+-w /etc/passwd   -p wa -k passwd_change
+-w /etc/shadow   -p wa -k shadow_change
+-w /etc/group    -p wa -k group_change
+-w /etc/gshadow  -p wa -k gshadow_change
+
+## ============================================================
+## NETWORK-RELATED SYSCALLS
+## ATT&CK: T1071 — Application Layer Protocol
+## ============================================================
+-a always,exit -F arch=b64 -S socket   -k network_socket
+-a always,exit -F arch=b64 -S connect  -k network_connect
+-a always,exit -F arch=b64 -S bind     -k network_bind
+
+## ============================================================
+## PRIVILEGE ESCALATION PATHS
+## ATT&CK: T1548 — Abuse Elevation Control Mechanism
+## ============================================================
+-w /usr/bin/sudo  -p x -k sudo_exec
+-w /usr/bin/su    -p x -k su_exec
+-w /usr/bin/newgrp -p x -k newgrp_exec
+
+## ============================================================
+## CRONTAB / SCHEDULED JOB MODIFICATION
+## ATT&CK: T1053.003 — Scheduled Task/Job: Cron
+## ============================================================
+-w /etc/cron.d/         -p wa -k cron_modification
+-w /etc/cron.daily/     -p wa -k cron_modification
+-w /etc/cron.weekly/    -p wa -k cron_modification
+-w /etc/crontab         -p wa -k cron_modification
+-w /var/spool/cron/     -p wa -k cron_modification
+
+## ============================================================
+## SSH CONFIGURATION
+## ATT&CK: T1098 — Account Manipulation
+## ============================================================
+-w /etc/ssh/sshd_config -p wa -k sshd_config
+
+## ============================================================
+## STARTUP / INIT SCRIPTS
+## ATT&CK: T1543.002 — Create or Modify System Process: Systemd Service
+## ============================================================
+-w /etc/systemd/system/ -p wa -k systemd_unit
+
+## ============================================================
+## MAKE RULES IMMUTABLE (uncomment in production, not in lab)
+## Once set, a reboot is required to change rules.
+## ============================================================
+## -e 2

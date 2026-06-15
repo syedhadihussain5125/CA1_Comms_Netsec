@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  local_rules.xml  —  Larkspur Retail Group  —  Custom Wazuh Detection Rules
+  Student: Batool Fatima  |  Module: B9CY110  |  Assessment: CA1
+  Place this file at: /var/ossec/etc/rules/local_rules.xml  (Wazuh manager)
+-->
+
+<!-- ================================================================
+  RULE 105760  SSH Brute Force Correlation
+  Source:   /var/log/auth.log  (via Linux Wazuh agent)
+  Trigger:  Built-in Wazuh rule 5760 fires (3+ SSH failures in 60s)
+  Action:   Fires custom alert; triggers firewall-drop active response
+  ATT&CK:   T1110  — Brute Force
+  FP notes: Three-failure window is tight for lab; widen to 10+ in production
+             to avoid blocking users who mistype passwords.
+================================================================ -->
+<group name="sshd,authentication_failed,larkspur_custom,">
+  <rule id="105760" level="12">
+    <if_sid>5760</if_sid>
+    <description>LARKSPUR-ALERT: SSH brute force attack detected from $(srcip). Active response triggered.</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>authentication_failed,pci_dss_10.2.4,gdpr_IV_35.7.d,</group>
+  </rule>
+</group>
+
+<!-- ================================================================
+  RULE 100010  New Local User Account Created (Linux)
+  Source:   /var/log/auth.log  (useradd / adduser events)
+  Trigger:  Wazuh built-in rule 5901 detects useradd execution
+  Action:   Informational alert; chaining parent for rule 100011
+  ATT&CK:   T1136.001  — Create Account: Local Account
+  FP notes: Low false-positive risk; legitimate admin adds are infrequent.
+             In production, allowlist known admin usernames.
+================================================================ -->
+<group name="audit,adduser,larkspur_custom,">
+  <rule id="100010" level="12">
+    <if_sid>5901</if_sid>
+    <description>LARKSPUR-ALERT: New local user account created: $(dstuser). Monitor for privilege escalation.</description>
+    <mitre>
+      <id>T1136.001</id>
+    </mitre>
+    <group>audit,adduser,</group>
+  </rule>
+</group>
+
+<!-- ================================================================
+  RULE 100011  Sudo Privilege Escalation — Chained Correlation
+  Source:   /var/log/auth.log  (usermod -aG sudo event)
+  Trigger:  Rule 100010 fired AND sudoers change seen within 300 seconds
+            from the same agent (Wazuh if_matched_sid + timeframe)
+  Action:   High-severity alert; triggers account-lock active response
+  ATT&CK:   T1548.003  — Abuse Elevation Control Mechanism: Sudo
+  FP notes: 5-min window catches the attack pattern. In production, tune
+             the timeframe to match operational account provisioning SLA.
+================================================================ -->
+<group name="audit,privilege_escalation,larkspur_custom,">
+  <rule id="100011" level="14">
+    <if_matched_sid>100010</if_matched_sid>
+    <timeframe>300</timeframe>
+    <match>sudo</match>
+    <description>LARKSPUR-ALERT: Privilege escalation — new account $(dstuser) granted sudo within 5 minutes of creation.</description>
+    <mitre>
+      <id>T1548.003</id>
+    </mitre>
+    <group>audit,privilege_escalation,</group>
+  </rule>
+</group>
+
+<!-- ================================================================
+  RULE 100600  Suspicious Scheduled Task Created (Windows)
+  Source:   Windows Security Event Log  — EID 4698 (task created)
+  Trigger:  Task name matches known-malicious keyword pattern (regex)
+  Action:   High-severity alert; triggers remove-task active response
+  ATT&CK:   T1053.005  — Scheduled Task/Job: Scheduled Task
+  FP notes: Keyword list (keylog, mimikatz, payload, etc.) is narrow —
+             low FP rate. In production, also flag tasks whose command
+             line runs binaries outside System32 / expected app paths.
+================================================================ -->
+<group name="windows,persistence,larkspur_custom,">
+  <rule id="100600" level="12">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^4698$</field>
+    <field name="win.eventdata.taskName" type="pcre2">(?i)(keylog|mimikatz|meterpreter|payload|backdoor|malware|rat|trojan|exfil|dropper|loader|beacon|svchost32|lsass_dump)</field>
+    <description>LARKSPUR-ALERT: Suspicious Windows scheduled task created: $(win.eventdata.taskName). Possible persistence mechanism.</description>
+    <mitre>
+      <id>T1053.005</id>
+    </mitre>
+    <group>windows,persistence,</group>
+  </rule>
+</group>
+
+<!-- ================================================================
+  RULE 100700  Suspicious PowerShell Execution
+  Source:   Sysmon Event ID 1 (Process Creation) via Windows agent
+  Trigger:  powershell.exe command line contains encoded commands,
+            execution policy bypass, or download cradles
+  Action:   High-severity alert; analyst review required
+  ATT&CK:   T1059.001  — Command and Scripting Interpreter: PowerShell
+  FP notes: Some legitimate admin scripts use -ExecutionPolicy Bypass.
+             In production, allowlist known script paths and sign scripts
+             with a code-signing certificate.
+================================================================ -->
+<group name="windows,powershell,larkspur_custom,">
+  <rule id="100700" level="12">
+    <if_group>sysmon</if_group>
+    <field name="win.system.eventID">^1$</field>
+    <field name="win.eventdata.image" type="pcre2">(?i)\\powershell\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(-enc\b|-encodedcommand\b|-w\s+hidden|-windowstyle\s+hidden|-noprofile.*bypass|downloadstring|iex\s*\(|invoke-expression|invoke-mimikatz)</field>
+    <description>LARKSPUR-ALERT: Suspicious PowerShell execution on $(agent.name). Command: $(win.eventdata.commandLine)</description>
+    <mitre>
+      <id>T1059.001</id>
+    </mitre>
+    <group>windows,powershell,</group>
+  </rule>
+</group>
+
+<!-- ================================================================
+  RULE 100900  Sensitive Privilege Assignment at Logon (Windows)
+  Source:   Windows Security Event Log  — EID 4672
+  Trigger:  A non-SYSTEM account is assigned sensitive privileges at logon
+  Action:   Medium alert; analyst review; correlate with 4624 for context
+  ATT&CK:   T1078.003  — Valid Accounts: Local Accounts
+  FP notes: Domain admins and service accounts legitimately trigger this.
+             In production, whitelist known privileged service accounts.
+================================================================ -->
+<group name="windows,authentication,larkspur_custom,">
+  <rule id="100900" level="10">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^4672$</field>
+    <field name="win.eventdata.subjectUserName" type="pcre2">(?!SYSTEM$|LOCAL SERVICE$|NETWORK SERVICE$|DWM-\d+$|UMFD-\d+$)^.+$</field>
+    <description>LARKSPUR-ALERT: Sensitive privilege assigned to $(win.eventdata.subjectUserName) at logon. Validate this account is authorised.</description>
+    <mitre>
+      <id>T1078.003</id>
+    </mitre>
+    <group>windows,authentication,</group>
+  </rule>
+</group>
